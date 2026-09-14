@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- MANDATORY: Tells Figmin XR to initialize the scripting API -->
+    <meta name="figmin">
+    
     <meta charset="UTF-8">
     <title>My First Figmin XR Script</title>
     <style>
@@ -20,20 +23,28 @@
     <p id="status">Waiting for Figmin XR to load...</p>
 
     <script>
-        // 1. Wait for Figmin XR's built-in browser to be fully ready
-        window.addEventListener("FigminReady", () => {
+        // Listen on the document object for Figmin to become ready
+        document.addEventListener("FigminReady", () => {
             document.getElementById("status").innerText = "Connected to Figmin! Spawning object...";
 
-            // 2. Define where to place the object (in front of the user's camera)
-            // position: [X (left/right), Y (up/down), Z (forward/backward)]
+            // Define position: [X (left/right), Y (up/down), Z (forward/backward)]
             const position = [0, 0, -1.2]; 
-            const rotation =;
-            const scale =;
+            const rotation = [0, 0, 0];
+            const scale = [1, 1, 1];
 
-            // 3. Tell Figmin to spawn a built-in 3D model (a toy duck)
-            // 'gltf_duck' is a standard built-in asset name in Figmin XR
+            // Tell Figmin to spawn the built-in toy duck
             figmin.createObject('gltf_duck', position, rotation, scale, (error, objectId) => {
                 if (error) {
+                    document.getElementById("status").innerText = "Error: " + error;
+                } else {
+                    document.getElementById("status").innerText = "Successfully spawned Duck! ID: " + objectId;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
                     document.getElementById("status").innerText = "Error: " + error;
                 } else {
                     document.getElementById("status").innerText = "Successfully spawned Duck! ID: " + objectId;
