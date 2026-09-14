@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My First Figmin XR Script</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            background-color: #222;
+            color: white;
+            padding-top: 50px;
+        }
+        h1 { color: #00d2ff; }
+    </style>
+</head>
+<body>
+
+    <h1>Figmin XR Script Status:</h1>
+    <p id="status">Waiting for Figmin XR to load...</p>
+
+    <script>
+        // 1. Wait for Figmin XR's built-in browser to be fully ready
+        window.addEventListener("FigminReady", () => {
+            document.getElementById("status").innerText = "Connected to Figmin! Spawning object...";
+
+            // 2. Define where to place the object (in front of the user's camera)
+            // position: [X (left/right), Y (up/down), Z (forward/backward)]
+            const position = [0, 0, -1.2]; 
+            const rotation =;
+            const scale =;
+
+            // 3. Tell Figmin to spawn a built-in 3D model (a toy duck)
+            // 'gltf_duck' is a standard built-in asset name in Figmin XR
+            figmin.createObject('gltf_duck', position, rotation, scale, (error, objectId) => {
+                if (error) {
+                    document.getElementById("status").innerText = "Error: " + error;
+                } else {
+                    document.getElementById("status").innerText = "Successfully spawned Duck! ID: " + objectId;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
