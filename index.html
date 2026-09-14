@@ -1,46 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Tells Figmin XR to initialize the scripting tools -->
-    <meta name="figmin">
     <meta charset="UTF-8">
-    <title>My First Figmin XR Script</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            text-align: center;
-            background-color: #222;
-            color: white;
-            padding-top: 50px;
-        }
-        h1 { color: #00d2ff; }
-    </style>
+    <meta name="figmin"> <!-- Critical: grants script control over your XR space -->
+    <title>Figmin XR - Shooting Script</title>
 </head>
 <body>
-
-    <h1>Figmin XR Script Status:</h1>
-    <p id="status">Waiting for Figmin XR to load...</p>
+    <div style="color: white; font-family: sans-serif; text-align: center; padding: 20px;">
+        <h2>Laser Shooter Active 🚀</h2>
+        <p>Aim with your right controller and pull the <b>Trigger</b> to shoot!</p>
+    </div>
 
     <script>
-        // 1. Wait for Figmin XR to be ready
-        document.addEventListener("FigminReady", init);
+        document.addEventListener('FigminReady', () => {
+            console.log("Shooter script connected to Figmin XR!");
 
-        function init() {
-            document.getElementById("status").innerText = "Connected to Figmin! Spawning 3D text...";
+            // Listen for input events on the VR controllers
+            figmin.addEventListener('input', (event) => {
+                // Check if the event is a trigger press on the right controller
+                // State 1 = pressed down, State 0 = released
+                if (event.hand === 'right' && event.button === 'trigger' && event.state === 1) {
+                    shootProjectile(event.position, event.rotation);
+                }
+            });
 
-            try {
-                // 2. Use the official configuration format to spawn a 3D Text object
-                const obj = figmin.createObject(figmin.ObjectType.TEXT3D, {
-                    text: "Hello Quest 3!",
-                    targetSize: 0.2
+            function shootProjectile(startPos, startRot) {
+                // 1. Create a 3D sphere to act as the laser/bullet
+                const projectile = figmin.createObject(figmin.ObjectType.SPHERE, {
+                    position: startPos,
+                    scale: { x: 0.1, y: 0.1, z: 0.1 }, // Small 10cm bullet
+                    color: "#FF0055" // Neon pink/red laser color
                 });
 
-                document.getElementById("status").innerText = "Successfully spawned 3D text!";
-            } catch (error) {
-                document.getElementById("status").innerText = "Failed to spawn: " + error.message;
+                // 2. Enable physics so the bullet can move and collide
+                figmin.physics.enable(projectile, {
+                    type: 'dynamic',
+                    mass: 1,
+                    restitution: 0.8 // Makes it bouncy if it hits a wall/floor
+                });
+
+                // 3. Calculate forward direction vector based on controller rotation
+                // In XR space, forward is typically the negative Z-axis (-z)
+                const forwardVector = figmin.utils.getForwardVector(startRot);
+                const shootSpeed = 15; // Velocity multiplier
+
+                const velocity = {
+                    x: forwardVector.x * shootSpeed,
+                    y: forwardVector.y * shootSpeed,
+                    z: forwardVector.z * shootSpeed
+                };
+
+                // 4. Propel the bullet forward
+                figmin.physics.setVelocity(projectile, velocity);
+
+                // 5. Cleanup: Destroy the bullet after 4 seconds to prevent lag
+                setTimeout(() => {
+                    figmin.destroyObject(projectile);
+                }, 4000);
             }
-        }
+        });
     </script>
 </body>
 </html>
+
 
